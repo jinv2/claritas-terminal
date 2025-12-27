@@ -4,11 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0f0f1e">
-    <title>CLARITAS · 数据标价你</title>
+    <title>CLARITAS · 数据标价你 | 神思庭</title>
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
+
+    <!-- 引入 Supabase SDK (用于鉴权) -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
+
+    <!-- ============================================ -->
+    <!-- 🛡️ 神思庭 · 会员玻璃墙 (Member Glass Wall) -->
+    <!-- ============================================ -->
+    <style>
+        /* 玻璃墙样式 - 适配终端风格 */
+        #glass-wall { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 99999; cursor: pointer; display: block; background: rgba(15, 15, 30, 0.1); }
+        .lock-badge { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.9); color: #d4af37; border: 1px solid #d4af37; padding: 5px 15px; font-family: 'Courier New', monospace; font-size: 12px; border-radius: 2px; pointer-events: none; }
+        
+        /* 弹窗样式 */
+        #auth-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100000; background: rgba(10, 10, 20, 0.95); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; }
+        .modal-card { background: #1a1a2e; border: 1px solid #4a4a6a; padding: 40px; text-align: center; max-width: 450px; box-shadow: 0 0 40px rgba(0,0,0,0.8); font-family: 'Courier New', monospace; color: #e0e0e0; }
+        .modal-title { color: #d4af37; font-size: 20px; font-weight: bold; margin-bottom: 15px; letter-spacing: 2px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 10px; display: inline-block;}
+        .modal-btn { display: inline-block; background: #d4af37; color: #000; padding: 12px 30px; text-decoration: none; font-weight: bold; margin-top: 25px; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; border: 1px solid #d4af37; }
+        .modal-btn:hover { background: transparent; color: #d4af37; box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
+        .close-link { margin-top: 25px; color: #666; font-size: 12px; cursor: pointer; text-decoration: underline; }
+    </style>
+
+    <!-- 1. 玻璃墙层 -->
+    <div id="glass-wall" onclick="document.getElementById('auth-modal').style.display='flex'">
+        <div class="lock-badge">🔒 CLARITAS · 会员资产</div>
+    </div>
+
+    <!-- 2. 拦截弹窗 -->
+    <div id="auth-modal">
+        <div class="modal-card">
+            <div class="modal-title">ACCESS RESTRICTED</div>
+            <p style="color:#aaa; font-size:14px; line-height:1.6; margin-top: 10px;">
+                <strong>CLARITAS 终端</strong> 涉及高密度数据评估<br>
+                需验证神思庭会员身份以启动计算
+            </p>
+            <a href="https://shensi-nexus.vercel.app" class="modal-btn">立即登录 / 注册</a>
+            <div class="close-link" onclick="document.getElementById('auth-modal').style.display='none'">[ 仅预览界面理念 ]</div>
+        </div>
+    </div>
+
+    <!-- 3. 鉴权逻辑 -->
+    <script>
+        (async function() {
+            // 🔴 核心配置：已设置为 Claritas
+            const APP_SLUG = 'claritas-terminal'; 
+            // ---------------------------------------------
+            const SB_URL = 'https://enutekcevqcmhrzwdnlt.supabase.co';
+            const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudXRla2NldnFjbWhyendkbmx0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY3ODg1MjAsImV4cCI6MjA4MjM2NDUyMH0.WrZ3sRH-0HVXv5NNPTvm00l5kC4qURAaxq0jinxND3E';
+            
+            try {
+                const sb = supabase.createClient(SB_URL, SB_KEY);
+                // 检测 Session
+                const { data: { session } } = await sb.auth.getSession();
+                if (session) {
+                    // 已登录：移除玻璃墙
+                    const wall = document.getElementById('glass-wall');
+                    if(wall) wall.style.display = 'none';
+                }
+            } catch (e) { console.error("Shensi Auth:", e); }
+        })();
+    </script>
+    <!-- ============================================ -->
+
+    <!-- 原有 APP 内容 -->
     <header>
         <h1>CLARITAS</h1>
         <p class="subtitle">澄明终端 · 数据标价你</p>
